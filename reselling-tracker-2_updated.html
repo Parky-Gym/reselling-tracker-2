@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="theme-color" content="#111827">
+ <title>Resell Tracker</title>
+ <style>
+ * { box-sizing: border-box; }
+ body {
+ margin: 0;
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+ background: #f3f4f6;
+ color: #111827;
+    }
+    .app { max-width: 900px; margin: auto; padding: 20px; }
+ h1 { margin: 0 0 5px; font-size: 30px; }
+    .subtitle { color: #6b7280; margin: 0 0 22px; }
+    .stats {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 12px;
+ margin-bottom: 20px;
+    }
+    .card {
+ background: white;
+ border-radius: 16px;
+ padding: 18px;
+ box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+    .stat-label { color: #6b7280; font-size: 13px; }
+    .stat-value { font-size: 25px; font-weight: 700; margin-top: 5px; }
+    .profit { color: #059669; }
+ form { display: grid; gap: 12px; }
+ label { font-size: 13px; font-weight: 600; color: #374151; }
+ input {
+ width: 100%;
+ margin-top: 6px;
+ padding: 13px;
+ border: 1px solid #d1d5db;
+ border-radius: 10px;
+ font-size: 16px;
+ outline: none;
+    }
+ input:focus { border-color: #111827; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+ button {
+ border: 0;
+ border-radius: 10px;
+ padding: 13px 16px;
+ font-size: 16px;
+ font-weight: 700;
+ cursor: pointer;
+    }
+    .add { background: #111827; color: white; }
+    .clear { background: #fee2e2; color: #991b1b; }
+    .items { margin-top: 20px; display: grid; gap: 12px; }
+    .item {
+ background: white;
+ border-radius: 16px;
+ padding: 16px;
+ box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+    .item-top { display: flex; justify-content: space-between; gap: 10px; }
+    .item-name { font-size: 18px; font-weight: 700; }
+    .badge {
+ padding: 5px 9px;
+ border-radius: 999px;
+ font-size: 12px;
+ font-weight: 700;
+ white-space: nowrap;
+    }
+    .sold { background: #d1fae5; color: #065f46; }
+    .unsold { background: #e5e7eb; color: #374151; }
+    .details {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ margin: 14px 0;
+    }
+    .detail { background: #f9fafb; padding: 10px; border-radius: 9px; }
+    .detail small { display: block; color: #6b7280; font-size: 11px; }
+    .detail strong { display: block; margin-top: 3px; }
+    .actions { display: flex; gap: 8px; }
+    .sell { background: #dbeafe; color: #1e40af; flex: 1; }
+    .delete { background: #f3f4f6; color: #374151; }
+    .empty { text-align: center; color: #6b7280; padding: 35px 10px; }
+    .toolbar { margin-top: 20px; display: grid; gap: 12px; }
+    .toolbar-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+    .category-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
+    .secondary { background: #e5e7eb; color: #374151; }
+    .category-badge { background: #ede9fe; color: #5b21b6; }
+    .date { color: #6b7280; font-size: 13px; margin-top: 4px; }
+    .section-title { margin: 0 0 12px; }
+    @media (max-width: 600px) {
+      .toolbar-row, .category-row { grid-template-columns: 1fr; }
+    }
+ @media (max-width: 600px) {
+      .stats { grid-template-columns: 1fr; }
+      .row, .details { grid-template-columns: 1fr; }
+      .app { padding: 15px; }
+    }
+ </style>
+</head>
+<body>
+ <main class="app">
+ <h1>Resell Tracker</h1>
+ <p class="subtitle">Track what you buy, sell and make.</p>
+
+
+ <section class="stats">
+ <div class="card">
+ <div class="stat-label">Total spent</div>
+ <div class="stat-value" id="spent">£0.00</div>
+ </div>
+ <div class="card">
+ <div class="stat-label">Total sales</div>
+ <div class="stat-value" id="sales">£0.00</div>
+ </div>
+ <div class="card">
+ <div class="stat-label">Overall profit</div>
+ <div class="stat-value profit" id="overallProfit">£0.00</div>
+ </div>
+ </section>
+
+
+ <section class="card">
+ <h2>Add an item</h2>
+ <form id="itemForm">
+ <label>
+          Item name
+ <input id="name" type="text" placeholder="e.g. Nike Tech Fleece" required>
+ </label>
+
+ <div class="row">
+ <label>
+            What you paid (£)
+ <input id="cost" type="number" min="0" step="0.01" placeholder="20.00" required>
+ </label>
+ <label>
+            Selling price (£)
+ <input id="price" type="number" min="0" step="0.01" placeholder="45.00" required>
+ </label>
+ </div>
+
+ <div class="row">
+ <label>
+            Date
+ <input id="itemDate" type="date" required>
+ </label>
+ <label>
+            Category
+ <select id="category"></select>
+ </label>
+ </div>
+
+ <button class="add" type="submit">+ Add item</button>
+ </form>
+ </section>
+
+ <section class="card toolbar">
+   <h2 class="section-title">Find items</h2>
+   <div class="toolbar-row">
+     <input id="search" type="search" placeholder="Search by item name or date (e.g. Nike or 2026-08-18)">
+     <select id="categoryFilter"></select>
+   </div>
+   <div class="category-row">
+     <div>
+       <label for="newCategory">Create a new category</label>
+       <input id="newCategory" type="text" placeholder="e.g. Vintage">
+     </div>
+     <button class="secondary" type="button" id="addCategory">+ Add category</button>
+   </div>
+ </section>
+
+ <section id="items" class="items"></section>
+ </main>
+
+
+<script>
+const STORAGE_KEY = "resellTrackerItems";
+const CATEGORIES_KEY = "resellTrackerCategories";
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let categories = JSON.parse(localStorage.getItem(CATEGORIES_KEY) || '["Uncategorised"]');
+
+if (!Array.isArray(categories) || !categories.length) categories = ["Uncategorised"];
+categories = [...new Set(categories.map(String).map(c => c.trim()).filter(Boolean))];
+items = items.map(item => ({
+  ...item,
+  category: item.category || "Uncategorised",
+  date: item.date || ""
+}));
+
+const money = n => `£${Number(n).toFixed(2)}`;
+
+function save() {
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+ localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
+}
+
+function today() {
+ return new Date().toISOString().slice(0, 10);
+}
+
+function renderCategoryControls() {
+ const category = document.getElementById("category");
+ const filter = document.getElementById("categoryFilter");
+ const currentCategory = category.value || "Uncategorised";
+ const currentFilter = filter.value || "all";
+
+ category.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+ filter.innerHTML = `<option value="all">All categories</option>` +
+   categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+
+ category.value = categories.includes(currentCategory) ? currentCategory : "Uncategorised";
+ filter.value = categories.includes(currentFilter) ? currentFilter : "all";
+}
+
+function formatDate(date) {
+ if (!date) return "No date";
+ const d = new Date(date + "T00:00:00");
+ return Number.isNaN(d.getTime()) ? date : d.toLocaleDateString(undefined, {
+   year: "numeric", month: "short", day: "numeric"
+ });
+}
+
+function getFilteredItems() {
+ const query = document.getElementById("search").value.trim().toLowerCase();
+ const selectedCategory = document.getElementById("categoryFilter").value;
+ return items.filter(item => {
+   const matchesSearch = !query ||
+     item.name.toLowerCase().includes(query) ||
+     (item.date || "").toLowerCase().includes(query) ||
+     formatDate(item.date).toLowerCase().includes(query);
+   const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+   return matchesSearch && matchesCategory;
+ });
+}
+
+function render() {
+ const spent = items.reduce((sum, i) => sum + Number(i.cost), 0);
+ const sales = items.filter(i => i.sold).reduce((sum, i) => sum + Number(i.price), 0);
+ const profit = items.filter(i => i.sold).reduce((sum, i) => sum + (Number(i.price) - Number(i.cost)), 0);
+
+ document.getElementById("spent").textContent = money(spent);
+ document.getElementById("sales").textContent = money(sales);
+ document.getElementById("overallProfit").textContent = money(profit);
+
+ renderCategoryControls();
+
+ const container = document.getElementById("items");
+ const filteredItems = getFilteredItems();
+
+ if (!filteredItems.length) {
+   container.innerHTML = `<div class="card empty">${items.length ? "No items match your search." : "No items yet. Add your first item above."}</div>`;
+   return;
+ }
+
+ container.innerHTML = filteredItems.map(item => {
+   const itemProfit = Number(item.price) - Number(item.cost);
+   return `
+      <article class="item">
+        <div class="item-top">
+          <div>
+            <div class="item-name">${escapeHtml(item.name)}</div>
+            <div class="date">${escapeHtml(formatDate(item.date))}</div>
+          </div>
+          <div>
+            <span class="badge category-badge">${escapeHtml(item.category || "Uncategorised")}</span>
+            <span class="badge ${item.sold ? "sold" : "unsold"}">${item.sold ? "Sold" : "For sale"}</span>
+          </div>
+        </div>
+
+        <div class="details">
+          <div class="detail">
+            <small>Paid</small>
+            <strong>${money(item.cost)}</strong>
+          </div>
+          <div class="detail">
+            <small>Selling for</small>
+            <strong>${money(item.price)}</strong>
+          </div>
+          <div class="detail">
+            <small>Profit</small>
+            <strong class="${itemProfit >= 0 ? "profit" : ""}">${money(itemProfit)}</strong>
+          </div>
+        </div>
+
+        <div class="actions">
+ ${item.sold
+            ? `<button class="sell" onclick="markUnsold('${item.id}')">Mark as unsold</button>`
+            : `<button class="sell" onclick="markSold('${item.id}')">Mark as sold</button>`
+ }
+          <button class="delete" onclick="deleteItem('${item.id}')">Delete</button>
+        </div>
+      </article>
+    `;
+ }).join("");
+}
+
+function escapeHtml(text) {
+ return String(text).replace(/[&<>"']/g, c => ({
+ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+ }[c]));
+}
+
+document.getElementById("itemForm").addEventListener("submit", e => {
+ e.preventDefault();
+
+ const name = document.getElementById("name").value.trim();
+ const cost = Number(document.getElementById("cost").value);
+ const price = Number(document.getElementById("price").value);
+ const date = document.getElementById("itemDate").value || today();
+ const category = document.getElementById("category").value || "Uncategorised";
+
+ items.unshift({
+   id: Date.now().toString(),
+   name,
+   cost,
+   price,
+   date,
+   category,
+   sold: false
+ });
+
+ save();
+ render();
+ e.target.reset();
+ document.getElementById("itemDate").value = today();
+ document.getElementById("category").value = "Uncategorised";
+ document.getElementById("name").focus();
+});
+
+document.getElementById("addCategory").addEventListener("click", () => {
+ const input = document.getElementById("newCategory");
+ const name = input.value.trim();
+ if (!name) {
+   input.focus();
+   return;
+ }
+ if (categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+   alert("That category already exists.");
+   input.focus();
+   return;
+ }
+ categories.push(name);
+ save();
+ render();
+ document.getElementById("category").value = name;
+ input.value = "";
+});
+
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("categoryFilter").addEventListener("change", render);
+
+window.markSold = id => {
+ const item = items.find(i => i.id === id);
+ if (item) item.sold = true;
+ save();
+ render();
+};
+
+window.markUnsold = id => {
+ const item = items.find(i => i.id === id);
+ if (item) item.sold = false;
+ save();
+ render();
+};
+
+window.deleteItem = id => {
+ if (!confirm("Delete this item?")) return;
+ items = items.filter(i => i.id !== id);
+ save();
+ render();
+};
+
+document.getElementById("itemDate").value = today();
+render();
+</script>
+</body>
+</html>
